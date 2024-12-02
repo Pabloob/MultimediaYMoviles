@@ -1,0 +1,23 @@
+[
+  {
+    "nombreEjercicio": "Sentadillas",
+    "repeticiones": 12,
+    "series": 3,
+    "descanso": 1,
+    "tipoEjercicio": "Pierna"
+  },
+  {
+    "nombreEjercicio": "Press banca",
+    "repeticiones": 10,
+    "series": 4,
+    "descanso": 1,
+    "tipoEjercicio": "Pecho"
+  },
+  {
+    "nombreEjercicio": "Jalon al pecho",
+    "repeticiones": 10,
+    "series": 3,
+    "descanso": 1,
+    "tipoEjercicio": "Espalda"
+  }
+]

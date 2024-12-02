@@ -1,0 +1,20 @@
+[
+    {
+        "idRutina" : 1,
+        "idPersona": 1,
+        "nombreRutina": "Rutina ejemplo",
+        "descripcion": "Rutina ejemplo con varios datos",
+        "dia": ["lunes", "martes", "miercoles"],
+        "horaInicio": "10:20",
+        "horaFin": "13:20",
+        "ejercicios": [
+            {
+                "nombreEjercicio": "Press banca",
+                "repeticiones": 6,
+                "series": 3,
+                "descanso": 1,
+                "tipoEjercicio": "Pierna"
+            }
+        ]
+    }
+]
