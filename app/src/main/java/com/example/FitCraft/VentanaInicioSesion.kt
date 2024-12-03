@@ -20,19 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.FitCraft.ui.theme.MyApplicationTheme
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class VentanaPrincipal : ComponentActivity() {
     private val usuarioViewModel: UsuarioViewModel by viewModels()
@@ -54,18 +55,11 @@ class UsuarioViewModel : ViewModel() {
     var nombreUsuario by mutableStateOf("")
 }
 
-
 @Composable
 fun IniciarSesion(navController: NavController, usuarioViewModel: UsuarioViewModel) {
-    // Inicialización
-    val conexionJSONPersonas = ConexionJSONPersonas()
-    val usuarios = remember { mutableStateListOf<Persona>() }
-    val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        usuarios.clear()
-        usuarios.addAll(conexionJSONPersonas.leerPersonasDesdeJson(context))
-    }
+    // Referencia a Firebase
+    val database = FirebaseDatabase.getInstance()
+    val usuariosRef = database.getReference("personas")
 
     // Estados del formulario
     var nombreUsuario by remember { mutableStateOf("") }
@@ -73,18 +67,30 @@ fun IniciarSesion(navController: NavController, usuarioViewModel: UsuarioViewMod
     var errorMensaje by remember { mutableStateOf("") }
 
     // Función para validar credenciales
-    fun validarCredenciales(): Boolean {
-        val usuarioValido = usuarios.find {
-            it.nombreUsuario == nombreUsuario && it.contrasena == contrasena
-        }
-        return if (usuarioValido != null) {
-            usuarioViewModel.nombreUsuario = usuarioValido.nombreUsuario
-            true
-        } else {
-            errorMensaje = "Usuario o contraseña incorrectos"
-            false
-        }
+    fun validarCredenciales() {
+        usuariosRef.orderByChild("nombreUsuario").equalTo(nombreUsuario)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val usuarioValido = snapshot.children.firstOrNull()?.getValue(Persona::class.java)
+                        if (usuarioValido != null && usuarioValido.contrasena == contrasena) {
+                            usuarioViewModel.nombreUsuario = usuarioValido.nombreUsuario
+                            navController.navigate("VentanaInicio")
+                        } else {
+                            errorMensaje = "Usuario o contraseña incorrectos"
+                        }
+                    } else {
+                        errorMensaje = "Usuario no encontrado"
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    error.toException().printStackTrace()
+                    errorMensaje = "Error al conectarse con Firebase"
+                }
+            })
     }
+
 
     // Diseño principal
     Box(
@@ -142,9 +148,7 @@ fun IniciarSesion(navController: NavController, usuarioViewModel: UsuarioViewMod
             GenericButton(
                 text = "Iniciar sesión",
                 onClick = {
-                    if (validarCredenciales()) {
-                        navController.navigate("VentanaInicio")
-                    }
+                    validarCredenciales()
                 }
             )
             Spacer(modifier = Modifier.height(16.dp))

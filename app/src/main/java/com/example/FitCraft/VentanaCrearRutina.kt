@@ -50,18 +50,7 @@ class VentanaCrearRutina : ComponentActivity() {
 
 @Composable
 fun CrearRutina(navController: NavController) {
-    val conexionJSONPersonas = ConexionJSONPersonas()
-    val usuarios = remember { mutableStateListOf<Persona>() }
-    val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        usuarios.clear()
-        usuarios.addAll(conexionJSONPersonas.leerPersonasDesdeJson(context))
-    }
-
-    var nombreUsuario by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
-    var inicioSesion by remember { mutableStateOf(false) }
+    var nombreRutina by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -83,8 +72,8 @@ fun CrearRutina(navController: NavController) {
 
 
             InputConImagen(
-                value = nombreUsuario,
-                onValueChange = { nombreUsuario = it },
+                value = nombreRutina,
+                onValueChange = { nombreRutina = it },
                 placeholder = "Nombre rutina",
                 imageRes = R.drawable.info_crear_rutina
             )
@@ -92,7 +81,7 @@ fun CrearRutina(navController: NavController) {
             DividerConEspaciado()
 
             Boton("Añadir ejercicio",onClick = {
-            navController.navigate("MostrarEjercicios")
+            navController.navigate("VentanaEjercicios")
             }
             )
 

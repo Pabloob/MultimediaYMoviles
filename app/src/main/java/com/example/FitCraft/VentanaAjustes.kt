@@ -28,10 +28,11 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 internal fun Ajustes(navController: NavController, usuarioViewModel: UsuarioViewModel) {
-    val conexionJSONPersonas = ConexionJSONPersonas()
+    val conexionPersonas = ConexionPersonas()
     var nombreUsuario by remember { mutableStateOf(usuarioViewModel.nombreUsuario) }
     val usuario = remember { mutableStateOf<Persona?>(null) }
-    conexionJSONPersonas.CargarPersonasDesdeJsonPorNombre(nombreUsuario, usuario)
+
+    conexionPersonas.CargarPersonaPorNombreDesdeFirebase(nombreUsuario, usuario)
 
     var auxAltura by remember { mutableStateOf("") }
     var auxPeso by remember { mutableStateOf("") }
@@ -94,7 +95,7 @@ internal fun Ajustes(navController: NavController, usuarioViewModel: UsuarioView
                     text = "Borrar cuenta",
                     color = Color.Red,
                     onClick = {
-                        if (conexionJSONPersonas.borrarPersonaDelJson(context, nombreUsuario)) {
+                        if (conexionPersonas.borrarPersonaDeFirebase(nombreUsuario)) {
                             Toast.makeText(context, "Cuenta eliminada", Toast.LENGTH_SHORT).show()
                             navController.navigate("VentanaInicio")
                         } else {

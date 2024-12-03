@@ -10,26 +10,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.FitCraft.ui.theme.MyApplicationTheme
+import com.google.firebase.database.FirebaseDatabase
 import java.util.Calendar
 
 class VentanaSecundaria : ComponentActivity() {
@@ -64,7 +51,9 @@ class VentanaSecundaria : ComponentActivity() {
 
 @Composable
 internal fun Registrar(navController: NavController) {
-    val conexionJSONPersonas = ConexionJSONPersonas()
+    val database = FirebaseDatabase.getInstance()
+    val usuariosRef = database.getReference("personas")
+
     var nombre by remember { mutableStateOf("") }
     var apellidos by remember { mutableStateOf("") }
     var fechaNacimiento by remember { mutableStateOf("Seleccionar fecha") }
@@ -191,11 +180,6 @@ internal fun Registrar(navController: NavController) {
                         unfocusedIndicatorColor = Color.Transparent
                     )
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.info_altura),
-                    contentDescription = "imagen altura",
-                    modifier = Modifier.size(50.dp)
-                )
                 Spacer(modifier = Modifier.width(16.dp))
                 TextField(
                     value = auxPeso,
@@ -212,11 +196,6 @@ internal fun Registrar(navController: NavController) {
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     )
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.info_peso),
-                    contentDescription = "imagen peso",
-                    modifier = Modifier.size(50.dp)
                 )
             }
 
@@ -251,18 +230,21 @@ internal fun Registrar(navController: NavController) {
                             altura, peso, nombreUsuario, contrasena
                         )
                     ) {
-                        val nuevaPersona = Persona.crearNuevaPersona(
-                            context,
-                            nombre,
-                            apellidos,
-                            fechaNacimiento,
-                            altura,
-                            peso,
-                            nombreUsuario,
-                            contrasena
+                        val nuevaPersona = Persona(
+                            idPersona = 0, // Será generado por Firebase
+                            nombre = nombre,
+                            apellidos = apellidos,
+                            fechaNacimiento = fechaNacimiento,
+                            altura = altura,
+                            peso = peso,
+                            nombreUsuario = nombreUsuario,
+                            contrasena = contrasena
                         )
-                        conexionJSONPersonas.agregarPersonaAlJson(context, nuevaPersona)
-                        navController.navigate("VentanaIniciarSesion")
+                        usuariosRef.push().setValue(nuevaPersona).addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                navController.navigate("VentanaIniciarSesion")
+                            }
+                        }
                     }
                 }
             )
@@ -277,7 +259,6 @@ internal fun Registrar(navController: NavController) {
         }
     }
 }
-
 
 fun validarEntrada(
     nombre: String,

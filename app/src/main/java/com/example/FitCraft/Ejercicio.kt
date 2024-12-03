@@ -6,6 +6,6 @@ data class Ejercicio(
     @SerializedName("nombreEjercicio") val nombreEjercicio: String,
     @SerializedName("repeticiones") val repeticiones: Int,
     @SerializedName("series") val series: Int,
-    @SerializedName("descanso") val descanso: Int,
+    @SerializedName("descripcion") val descripcion: String,
     @SerializedName("tipoEjercicio") val tipoEjercicio: String
 )

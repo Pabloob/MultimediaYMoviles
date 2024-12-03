@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -47,10 +49,8 @@ class VentanaEjercicios : ComponentActivity() {
     val conexionJSONEjercicios = ConexionJSONEjercicios()
     val ejercicios = remember { SnapshotStateList<Ejercicio>() }
 
-    // Cargar ejercicios desde el JSON
     conexionJSONEjercicios.cargarEjerciciosDesdeJson(ejercicios)
 
-    // UI para mostrar los ejercicios
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -63,6 +63,7 @@ class VentanaEjercicios : ComponentActivity() {
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(50.dp))
                 .background(Color(0xff1c1e26))
                 .padding(30.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Titulo("Lista de Ejercicios")
             Spacer(modifier = Modifier.height(16.dp))
@@ -74,6 +75,7 @@ class VentanaEjercicios : ComponentActivity() {
         }
     }
 }
+
 @Preview
 @Composable
 private fun AndroidMedium1Preview() {

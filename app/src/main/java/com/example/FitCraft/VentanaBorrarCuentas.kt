@@ -1,6 +1,7 @@
 package com.example.FitCraft
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -56,12 +57,11 @@ class VentanaBorrarCuentas : ComponentActivity() {
 
 @Composable
 internal fun Borrar(navController: NavController) {
-    val conexionJSONPersonas = ConexionJSONPersonas()
+    val conexionPersonas = ConexionPersonas()
     val usuarios = remember { mutableStateListOf<Persona>() }
-    conexionJSONPersonas.CargarPersonasDesdeJson(usuarios)
+    conexionPersonas.CargarPersonasDesdeFirebase(usuarios)
     val context = LocalContext.current
 
-    // Usamos un Box para centrar el contenido
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -100,7 +100,6 @@ internal fun Borrar(navController: NavController) {
                     .width(350.dp)
                     .clip(RoundedCornerShape(25.dp))
                     .background(color = Color(0xff2D2F3A))
-
             ) {
                 Column(
                     modifier = Modifier
@@ -115,16 +114,17 @@ internal fun Borrar(navController: NavController) {
                                     fontSize = 20.sp, fontWeight = FontWeight.Bold
                                 ), modifier = Modifier
                                     .clickable {
-                                        conexionJSONPersonas.borrarPersonaDelJson(
-                                            context,
-                                            usr.nombreUsuario
-                                        )
+                                        if (conexionPersonas.borrarPersonaDeFirebase(usr.nombreUsuario)) {
+                                            usuarios.remove(usr)
+                                            Toast.makeText(context, "Usuario eliminado", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Error al eliminar", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                             )
                         }
                     }
                 }
-
             }
         }
 
@@ -161,10 +161,7 @@ internal fun Borrar(navController: NavController) {
                 )
             }
         }
-
     }
-
-
 }
 
 @Preview
